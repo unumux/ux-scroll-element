@@ -1,12 +1,13 @@
 // Karma configuration
 // Generated on Mon Dec 07 2015 21:02:31 GMT-0500 (EST)
 
+var fast = process.argv.indexOf("--fast") >= 0;
+
+var browsers = fast ? ["Chrome"] : ["Chrome", "Safari", "Firefox", "IE9 - Win7", "IE10 - Win7", "IE11 - Win7"];
+
 module.exports = function(config) {
-
     config.set({
-
-
-        browsers: ["Chrome", "Safari", "Firefox"],
+        browsers: browsers,
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
         basePath: "",
@@ -19,8 +20,7 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
-            "./**/*.js",
-            "../src/**/*.js"
+            "./**/*.js"
         ],
 
 
@@ -31,18 +31,16 @@ module.exports = function(config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            "./**/*.js": ["browserify"],
-            "../src/**/*.js": ["browserify"]
+            "./**/*.js": ["browserify"]
         },
 
         // test results reporter to use
-        // possible values: 'dots', 'progress'
+        // possible values: "dots", "progress"
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
         reporters: ["mocha"],
 
         browserify: {
-            debug: true,
-            transform: ["babelify"]
+            debug: true
         },
 
 

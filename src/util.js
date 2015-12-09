@@ -1,33 +1,41 @@
-let _ = require("lodash");
+var _ = require("lodash");
 
-export function determineNextColumn(scrollPos, offsets) {
-    let next = determineCurrentColumn(scrollPos, offsets) + 1;
+function determineNextColumn(scrollPos, offsets, scrollWidth, containerWidth) {
+    var offsetsWithMax = determineOffsetsWithMax(offsets, scrollWidth - containerWidth);
 
-    next = makeInRange(next, 0, Math.max(offsets.length - 1, 0));
+    var next = determineCurrentColumn(scrollPos, offsetsWithMax) + 1;
+    var nextInRange = makeInRange(next, 0, Math.max(offsetsWithMax.length - 1, 0));
+
+
+    var offset = next > nextInRange ? scrollWidth - containerWidth : offsetsWithMax[nextInRange];
 
     return {
-        index: next,
-        offset: offsets[next] || 0
+        index: nextInRange,
+        offset: offset || 0
     };
 }
 
-export function determinePreviousColumn(scrollPos, offsets) {
-    let previous = determineCurrentColumn(scrollPos, offsets) - 1;
+function determinePreviousColumn(scrollPos, offsets, scrollWidth, containerWidth) {
+    var offsetsWithMax = determineOffsetsWithMax(offsets, scrollWidth - containerWidth);
 
-    if(scrollPos > offsets[previous + 1]) {
+    var previous = determineCurrentColumn(scrollPos, offsetsWithMax) - 1;
+
+    if(scrollPos > offsetsWithMax[previous + 1]) {
         previous++;
     }
 
-    previous = makeInRange(previous, 0, Math.max(offsets.length - 1, 0));
+    previous = makeInRange(previous, 0, Math.max(offsetsWithMax.length - 1, 0));
 
     return {
         index: previous,
-        offset: offsets[previous] || 0
+        offset: offsetsWithMax[previous] || 0
     };
 }
 
-export function determineCurrentColumn(scrollPos, offsets) {
-    let index = _.findLastIndex(offsets, (offset) => scrollPos >= offset);
+function determineCurrentColumn(scrollPos, offsets) {
+    var index = _.findLastIndex(offsets, function(offset) {
+        return scrollPos >= offset;
+    });
 
     return index < 0 ? 0 : index;
 }
@@ -43,3 +51,15 @@ function makeInRange(val, min, max) {
 
     return val;
 }
+
+function determineOffsetsWithMax(offsets, max) {
+    return offsets.filter(function(offset) {
+        return offset <= max;
+    });
+}
+
+module.exports = {
+    determineNextColumn: determineNextColumn,
+    determinePreviousColumn: determinePreviousColumn,
+    determineCurrentColumn: determineCurrentColumn
+};
