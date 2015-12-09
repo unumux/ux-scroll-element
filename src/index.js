@@ -8,8 +8,8 @@ uxModule.factory("UXColumnSelectService", [function() {
     var _index = 0;
 
     var _btnState = {
-        previousDisabled: false,
-        nextDisabled: false
+        previousDisabled: true,
+        nextDisabled: true
     };
 
     var _listeners = {
@@ -62,6 +62,9 @@ uxModule.factory("UXColumnSelectService", [function() {
 uxModule.directive("uxColumnSelectControls", ["UXColumnSelectService", function(UXColumnSelectService) {
     return {
         link: function(scope) {
+            scope.previousDisabled = UXColumnSelectService.getBtnState().previousDisabled;
+            scope.nextDisabled = UXColumnSelectService.getBtnState().nextDisabled;
+
             UXColumnSelectService.on("btnState", function(state) {
                 scope.previousDisabled = state.previousDisabled;
                 scope.nextDisabled = state.nextDisabled;
