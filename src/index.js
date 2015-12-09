@@ -55,20 +55,27 @@ uxModule.factory("UXColumnSelectService", [function() {
         },
         on: function(event, cb) {
             _listeners[event].push(cb);
+            return function() {
+                _listeners[event] = _listeners[event].filter(function(listener) {
+                    return listener !== cb;
+                });
+            };
         }
     };
 }]);
 
 uxModule.directive("uxColumnSelectControls", ["UXColumnSelectService", function(UXColumnSelectService) {
     return {
-        link: function(scope) {
+        link: function(scope, element) {
             scope.previousDisabled = UXColumnSelectService.getBtnState().previousDisabled;
             scope.nextDisabled = UXColumnSelectService.getBtnState().nextDisabled;
 
-            UXColumnSelectService.on("btnState", function(state) {
+            var unbindBtnState = UXColumnSelectService.on("btnState", function(state) {
                 scope.previousDisabled = state.previousDisabled;
                 scope.nextDisabled = state.nextDisabled;
             });
+
+            element.on("$destroy", unbindBtnState);
 
             scope.onNext = function() {
                 UXColumnSelectService.next();
@@ -142,20 +149,24 @@ uxModule.directive("uxColumnSelect", ["UXColumnSelectService", function(UXColumn
                 }
             }
 
-            UXColumnSelectService.on("next", function() {
+            var unbindNextListener = UXColumnSelectService.on("next", function() {
                 var scrollLeft = getScrollLeft();
                 var offsets = getOffsets(element.children());
                 _actualColumn = util.determineNextColumn(scrollLeft, offsets, element[0].scrollWidth, element[0].offsetWidth);
                 scrollTo(_actualColumn);
             });
 
-            UXColumnSelectService.on("previous", function() {
+            var unbindPreviousListener = UXColumnSelectService.on("previous", function() {
                 var scrollLeft = getScrollLeft();
                 var offsets = getOffsets(element.children());
                 _actualColumn = util.determinePreviousColumn(scrollLeft, offsets, element[0].scrollWidth, element[0].offsetWidth);
                 scrollTo(_actualColumn);
             });
 
+            element.on("$destroy", function() {
+                unbindNextListener();
+                unbindPreviousListener();
+            });
 
             element.on("scroll", function() { scope.$apply(updateState); });
             angular.element(window).on("resize", function() { scope.$apply(updateState); });
