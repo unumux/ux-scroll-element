@@ -1,6 +1,7 @@
 /* global angular */
 
 var util = require("./util");
+var _ = require("lodash");
 
 var uxModule = angular.module("uxColumnSelect", [require("angular-scroll")]);
 
@@ -91,7 +92,14 @@ uxModule.directive("uxColumnSelectControls", ["UXColumnSelectService", function(
 
 uxModule.directive("uxColumnSelect", ["UXColumnSelectService", function(UXColumnSelectService) {
     return {
+        scope: {
+            options: "=uxColumnSelect"
+        },
         link: function(scope, element) {
+            var options = _.defaults(scope.options || {}, {
+                from: 0
+            });
+
             var _actualColumn = util.determineCurrentColumn(element[0].scrollLeft, getOffsets(element.children()));
             var _animating = false;
 
@@ -105,7 +113,7 @@ uxModule.directive("uxColumnSelect", ["UXColumnSelectService", function(UXColumn
 
             function getOffsets(els) {
                 var offsets = [];
-                for (var i = 0; i < els.length; i++) {
+                for (var i = options.from; i < els.length; i++) {
                     var offset = getColumnOffset(els.eq(i));
                     offsets.push(offset);
                 }

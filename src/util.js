@@ -1,13 +1,14 @@
 var _ = require("lodash");
 
 function determineNextColumn(scrollPos, offsets, scrollWidth, containerWidth) {
-    var offsetsWithMax = determineOffsetsWithMax(offsets, scrollWidth - containerWidth);
+    var offsetsWithMax = determineAdjustedOffsets(offsets, scrollWidth - containerWidth);
 
     var next = determineCurrentColumn(scrollPos, offsetsWithMax) + 1;
     var nextInRange = makeInRange(next, 0, Math.max(offsetsWithMax.length - 1, 0));
 
 
     var offset = next > nextInRange ? scrollWidth - containerWidth : offsetsWithMax[nextInRange];
+
 
     return {
         index: nextInRange,
@@ -16,8 +17,8 @@ function determineNextColumn(scrollPos, offsets, scrollWidth, containerWidth) {
 }
 
 function determinePreviousColumn(scrollPos, offsets, scrollWidth, containerWidth) {
-    var offsetsWithMax = determineOffsetsWithMax(offsets, scrollWidth - containerWidth);
-
+    var offsetsWithMax = determineAdjustedOffsets(offsets, scrollWidth - containerWidth);
+    
     var previous = determineCurrentColumn(scrollPos, offsetsWithMax) - 1;
 
     if(scrollPos > offsetsWithMax[previous + 1]) {
@@ -52,9 +53,11 @@ function makeInRange(val, min, max) {
     return val;
 }
 
-function determineOffsetsWithMax(offsets, max) {
-    return offsets.filter(function(offset) {
-        return offset <= max;
+function determineAdjustedOffsets(offsets, max) {
+    return offsets.map(function(offset) {
+        return offset - offsets[0];
+    }).filter(function(offset) {
+        return offset >= 0 && offset <= max;
     });
 }
 
